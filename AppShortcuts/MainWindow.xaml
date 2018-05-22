@@ -1,0 +1,56 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:AppShortcuts" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
+    x:Class="AppShortcuts.MainWindow"
+    Title="快捷助手" SizeToContent="Height" MinHeight="400" Height="400" Width="800"
+    WindowStartupLocation="CenterScreen"
+    Background="{DynamicResource GlossyBlack_BackgroundGradient}">
+    <Window.Resources>
+        <DataTemplate x:Key="AppSettingTemplate">
+            <Grid Background="{x:Null}" d:DesignWidth="472" d:DesignHeight="72">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="210"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding AppName}" VerticalAlignment="Center" Margin="8" Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus"/>
+                <TextBox Grid.Column="1" Text="{Binding ExePath}" VerticalAlignment="Center"
+                         Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus"
+                         AllowDrop="True" PreviewDragEnter="ExePath_PreviewDrag" PreviewDragOver="ExePath_PreviewDrag" PreviewDrop="ExePath_PreviewDrop"/>
+                <WrapPanel Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
+                    <CheckBox IsChecked="{Binding IsTemp}" Content="临时项" Margin="0,7,0,0"/>
+                    <Button Content="删除" Width="60" Margin="8,0,0,0"
+                            Command="{x:Static Member=local:MainWindow.ItemDelete}" CommandParameter="{Binding}"/>
+                    <Button Content="定位" Width="60" Margin="8,0,0,0"
+                            Command="{x:Static Member=local:MainWindow.OpenItemDir}" CommandParameter="{Binding}"/>
+                </WrapPanel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static Member=local:MainWindow.ItemDelete}" Executed="ItemDelete_Execute"/>
+        <CommandBinding Command="{x:Static Member=local:MainWindow.OpenItemDir}" Executed="OpenItemDir_Execute"/>
+    </Window.CommandBindings>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Button x:Name="btnAdd" Content="添加" Click="btnAdd_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnSave" Content="保存" Click="btnSave_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnCancel" Content="撤消" Click="btnCancel_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnHelp" Content="帮助" Click="btnHelp_Click" Margin="8,8,0,0"/>
+            <TextBox Name="tbSearch" Text="输入搜索" Margin="8,8,0,0" Width="200" 
+                     Visibility="Collapsed"
+                     TextChanged="tbSearch_TextChanged"
+                     PreviewMouseLeftButtonDown="tbSearch_MouseLeftButtonDown"/>
+            <CheckBox x:Name="cbSearchPath" VerticalAlignment="Center" Margin="8,6,0,0"
+                      Content="搜索路径" Visibility="Collapsed" Click="cbSearchPath_Click"/>
+            <CheckBox x:Name="cbFilterTemp" VerticalAlignment="Center" Margin="8,6,0,0"
+                      Content="过滤临时项" Visibility="Collapsed" Click="cbFilterTemp_Click"/>
+        </StackPanel>
+        <ListBox ItemsSource="{Binding}"
+                 ItemTemplate="{StaticResource AppSettingTemplate}"
+                 HorizontalContentAlignment="Stretch" 
+                 Margin="8"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+    </DockPanel>
+</Window>
