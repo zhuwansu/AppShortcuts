@@ -14,9 +14,9 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="210"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding AppName}" VerticalAlignment="Center" Margin="8" Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus"/>
+                <TextBox Text="{Binding AppName}" VerticalAlignment="Center" Margin="8" Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus" Keyboard.LostKeyboardFocus="TextBox_LostKeyboardFocus"/>
                 <TextBox Grid.Column="1" Text="{Binding ExePath}" VerticalAlignment="Center"
-                         Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus"
+                         Keyboard.GotKeyboardFocus="TextBox_GotKeyboardFocus" Keyboard.LostKeyboardFocus="TextBox_LostKeyboardFocus"
                          AllowDrop="True" PreviewDragEnter="ExePath_PreviewDrag" PreviewDragOver="ExePath_PreviewDrag" PreviewDrop="ExePath_PreviewDrop"/>
                 <WrapPanel Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
                     <CheckBox IsChecked="{Binding IsTemp}" Content="临时项" Margin="0,7,0,0"/>
@@ -36,16 +36,25 @@
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
             <Button x:Name="btnAdd" Content="添加" Click="btnAdd_Click" Margin="8,8,0,0"/>
             <Button x:Name="btnSave" Content="保存" Click="btnSave_Click" Margin="8,8,0,0"/>
-            <Button x:Name="btnCancel" Content="撤消" Click="btnCancel_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnCancel" Content="撤消" Click="btnCancel_Click" Margin="8,8,0,0" RenderTransformOrigin="0.5,0.5">
+                <Button.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-1.066"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Button.RenderTransform>
+            </Button>
             <Button x:Name="btnHelp" Content="帮助" Click="btnHelp_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnScan" Content="扫描" Click="btnScan_Click" Margin="8,8,0,0"/>
             <TextBox Name="tbSearch" Text="输入搜索" Margin="8,8,0,0" Width="200" 
-                     Visibility="Collapsed"
                      TextChanged="tbSearch_TextChanged"
                      PreviewMouseLeftButtonDown="tbSearch_MouseLeftButtonDown"/>
             <CheckBox x:Name="cbSearchPath" VerticalAlignment="Center" Margin="8,6,0,0"
-                      Content="搜索路径" Visibility="Collapsed" Click="cbSearchPath_Click"/>
+                      Content="搜索路径" Click="cbSearchPath_Click"/>
             <CheckBox x:Name="cbFilterTemp" VerticalAlignment="Center" Margin="8,6,0,0"
-                      Content="过滤临时项" Visibility="Collapsed" Click="cbFilterTemp_Click"/>
+                      Content="过滤临时项"  Click="cbFilterTemp_Click"/>
         </StackPanel>
         <ListBox ItemsSource="{Binding}"
                  ItemTemplate="{StaticResource AppSettingTemplate}"
