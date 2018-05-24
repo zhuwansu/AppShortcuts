@@ -112,12 +112,15 @@ namespace AppShortcuts
             }
         }
 
+        private const string DefaultAppName = "名称";
+        private const string DefaultExePath = "路径（支持直接拖动文件或文件夹到这里）";
+
         private void AddNew()
         {
             this._allData.Insert(0, new AppSetting
             {
-                AppName = "名称",
-                ExePath = "路径（支持直接拖动文件或文件夹到这里）"
+                AppName = DefaultAppName,
+                ExePath = DefaultExePath
             });
         }
 
@@ -238,7 +241,23 @@ namespace AppShortcuts
 
         private void TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            (e.Source as TextBox).SelectAll();
+            var text = e.Source as TextBox;
+            if (text.Text == DefaultAppName
+                || text.Text == DefaultExePath)
+            {
+                text.Tag = text.Text;
+                text.Clear();
+            }
+        }
+
+        private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            var text = e.Source as TextBox;
+            if (string.IsNullOrEmpty(text.Text))
+            {
+                text.AppendText(text.Tag.ToString());
+                text.Tag = null;
+            }
         }
 
         private void OpenItemDir_Execute(object sender, ExecutedRoutedEventArgs e)
@@ -278,6 +297,7 @@ namespace AppShortcuts
 
         private static void ShowHelp()
         {
+            return;
             var txtHelp = File.ReadAllText(@"Help.txt");
             MessageBox.Show(txtHelp + @"
 
@@ -285,6 +305,28 @@ namespace AppShortcuts
 作者：胡庆访", "帮助");
         }
 
+
         #endregion
+
+        /// <summary>
+        /// 扫描所有快捷方式
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnScan_Click(object sender, RoutedEventArgs e)
+        {
+            var res = MessageBox.Show("注册表扫描？", "扫描提示！", MessageBoxButton.YesNoCancel);
+            if (res == MessageBoxResult.Yes)
+            {
+                ScanLnks.ScanRegistry(this._allData);
+                return;
+            }
+
+            res = MessageBox.Show("全盘扫描？", "扫描提示！", MessageBoxButton.YesNoCancel);
+            if (res == MessageBoxResult.Yes)
+            {
+                ScanLnks.ScanAll(this._allData);
+            }
+        }
     }
 }

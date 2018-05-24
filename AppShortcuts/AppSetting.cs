@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
-using System.Xml.Serialization;
-using System.IO;
-using Microsoft.Win32;
 using System.ComponentModel;
-
+using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
 namespace AppShortcuts
 {
     public class AppSetting : INotifyPropertyChanged
@@ -52,8 +49,7 @@ namespace AppShortcuts
 
         protected virtual void OnPropertyChanged(string property)
         {
-            var handler = this.PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(property));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
     }
 
@@ -135,6 +131,7 @@ namespace AppShortcuts
             var s = new XmlSerializer(typeof(AppSetting[]));
             var writer = new StringWriter();
             s.Serialize(writer, this.ToArray());
+
             var content = writer.ToString();
             File.WriteAllText(DataFileName, content);
         }
@@ -196,6 +193,7 @@ namespace AppShortcuts
             //shortcut.IconLocation = System.Environment.SystemDirectory + "\\" + "shell32.dll, 165";
             try
             {
+                item.ExePath = shortcut.TargetPath;
                 shortcut.Save();
             }
             catch
