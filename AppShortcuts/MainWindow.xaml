@@ -34,7 +34,7 @@
     </Window.CommandBindings>
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-            <Button x:Name="btnAdd" Content="添加" Click="btnAdd_Click" Margin="8,8,0,0"/>
+            <Button x:Name="btnAdd" Content="添加"  AllowDrop="True" PreviewDragOver="ExePath_PreviewDrag" PreviewDrop="ExePath_PreviewDrop" Click="btnAdd_Click" Margin="8,8,0,0"/>
             <Button x:Name="btnSave" Content="保存" Click="btnSave_Click" Margin="8,8,0,0"/>
             <Button x:Name="btnCancel" Content="撤消" Click="btnCancel_Click" Margin="8,8,0,0"/>
             <Button x:Name="btnHelp" Content="帮助" Click="btnHelp_Click" Margin="8,8,0,0"/>

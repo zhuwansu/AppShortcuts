@@ -12,22 +12,15 @@
 *******************************************************/
 
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Timers;
-using System.IO;
 
 namespace AppShortcuts
 {
@@ -114,11 +107,7 @@ namespace AppShortcuts
 
         private void AddNew()
         {
-            this._allData.Insert(0, new AppSetting
-            {
-                AppName = "名称",
-                ExePath = "路径（支持直接拖动文件或文件夹到这里）"
-            });
+            this._allData.InsertMany(exePathData: AppSetting.DefaultExePath);
         }
 
         #endregion
@@ -133,11 +122,18 @@ namespace AppShortcuts
 
         private void ExePath_PreviewDrop(object sender, DragEventArgs e)
         {
-            var data = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (data != null)
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] data)
             {
-                var item = (e.Source as TextBox).DataContext as AppSetting;
-                item.ExePath = data[0];
+                switch (e.Source)
+                {
+                    case TextBox textBox:
+                        if (textBox.DataContext is AppSetting appSetting)
+                            appSetting.ExePath = data[0];
+                        break;
+                    case Button btn:
+                        this._allData.InsertMany(exePathData: data);
+                        break;
+                }
             }
         }
 

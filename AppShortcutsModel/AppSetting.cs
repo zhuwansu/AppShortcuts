@@ -1,10 +1,24 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace AppShortcuts
 {
     public class AppSetting : INotifyPropertyChanged
     {
         public const string AuthToken = "{92057119-C46A-484C-B6F8-DEE20F6C8C71}";
+        public const string DefaultExePath = "路径（支持直接拖动文件或文件夹到这里）";
+        public const string DefaultAppName = "新增名称";
+
+        public AppSetting() { }
+
+        public AppSetting(string name = DefaultAppName, string path = DefaultExePath)
+        {
+            _AppName = name;
+            _ExePath = path;
+            _IsTemp = true;
+            IsNew = true;
+        }
 
         private string _AppName;
 
@@ -21,6 +35,9 @@ namespace AppShortcuts
                 this.OnPropertyChanged("AppName");
             }
         }
+
+        [XmlIgnore]
+        public bool IsNew { get; set; }
 
         public string ExePath
         {
