@@ -1,73 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
-using System.Xml.Serialization;
+using System.Diagnostics;
 using System.IO;
-using Microsoft.Win32;
-using System.ComponentModel;
+using System.Linq;
+using System.Xml.Serialization;
 
 namespace AppShortcuts
 {
-    public class AppSetting : INotifyPropertyChanged
-    {
-        private string _AppName;
-
-        private string _ExePath;
-
-        private bool _IsTemp;
-
-        public string AppName
-        {
-            get { return this._AppName; }
-            set
-            {
-                this._AppName = value;
-                this.OnPropertyChanged("AppName");
-            }
-        }
-
-        public string ExePath
-        {
-            get { return this._ExePath; }
-            set
-            {
-                this._ExePath = value;
-                this.OnPropertyChanged("ExePath");
-            }
-        }
-
-        public bool IsTemp
-        {
-            get { return this._IsTemp; }
-            set
-            {
-                this._IsTemp = value;
-                this.OnPropertyChanged("IsTemp");
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string property)
-        {
-            var handler = this.PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(property));
-        }
-    }
-
     public class AppSettingCollection : ObservableCollection<AppSetting>
     {
-        private static readonly string DataFileName = "Settings.xml";
+        private const string DataFileName = "Settings.xml";
+        private const string TempDataFileName = "TempSettings.xml";
 
         #region 读取
 
-        public AppSettingCollection()
+        public AppSettingCollection(string fileName = DataFileName)
         {
-            if (File.Exists(DataFileName))
+            if (File.Exists(fileName))
             {
-                var content = File.ReadAllText(DataFileName);
+                var content = File.ReadAllText(fileName);
                 var reader = new StringReader(content);
                 var s = new XmlSerializer(typeof(AppSetting[]));
                 var result = s.Deserialize(reader) as AppSetting[];
@@ -85,11 +37,24 @@ namespace AppShortcuts
 
         public void Save()
         {
-            this.CheckConflict();
+            try
+            {
+                this.CheckConflict();
 
-            this.SaveShortcutsToRegistry();
+                this.SaveToXml(TempDataFileName);
 
-            this.SaveToXml();
+                var p = Process.Start(nameof(AppShortcutsModel), AppSetting.AuthToken);
+                p.WaitForExit();
+                if (p.ExitCode == 0)
+                {
+                    this.SaveToXml();
+                }
+
+            }
+            finally
+            {
+                File.Delete(TempDataFileName);
+            }
         }
 
         private void CheckConflict()
@@ -103,13 +68,14 @@ namespace AppShortcuts
             }
         }
 
-        private void SaveShortcutsToRegistry()
+        public static void SaveShortcutsToRegistry()
         {
             //删除
             //先删除原来的所有文件
             var oldSettings = new AppSettingCollection();
             foreach (var oldItem in oldSettings)
             {
+                Console.WriteLine("删除" + oldItem.AppName);
                 Registry.LocalMachine.DeleteSubKey(GetSubRegistryKey(oldItem), false);
             }
             //删除 Shortcut 文件
@@ -118,25 +84,27 @@ namespace AppShortcuts
             //重建
             //建立新的文件夹
             Directory.CreateDirectory(ShortcutDir);
-            foreach (var item in this)
+            var newAppSettings = new AppSettingCollection(TempDataFileName);
+            foreach (var item in new AppSettingCollection(TempDataFileName))
             {
                 //创建 Shortcut 文件
                 var shortcut = CreateShortcut(item);
                 if (shortcut != null)
                 {
+                    Console.WriteLine("创建" + item.AppName);
                     var key = GetSubRegistryKey(item);
                     Registry.LocalMachine.CreateSubKey(key).SetValue(string.Empty, shortcut);
                 }
             }
         }
 
-        private void SaveToXml()
+        private void SaveToXml(string fileName = DataFileName)
         {
             var s = new XmlSerializer(typeof(AppSetting[]));
             var writer = new StringWriter();
             s.Serialize(writer, this.ToArray());
             var content = writer.ToString();
-            File.WriteAllText(DataFileName, content);
+            File.WriteAllText(fileName, content);
         }
 
         private static string GetSubRegistryKey(AppSetting item)

@@ -282,7 +282,7 @@ namespace AppShortcuts
             MessageBox.Show(txtHelp + @"
 
 版本号：" + CurrentVersion + @"
-作者：胡庆访", "帮助");
+作者：胡庆访,朱皖苏", "帮助");
         }
 
         #endregion
