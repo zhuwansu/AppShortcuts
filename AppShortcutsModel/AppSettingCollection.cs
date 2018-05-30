@@ -85,7 +85,7 @@ namespace AppShortcuts
             //建立新的文件夹
             Directory.CreateDirectory(ShortcutDir);
             var newAppSettings = new AppSettingCollection(TempDataFileName);
-            foreach (var item in new AppSettingCollection(TempDataFileName))
+            foreach (var item in newAppSettings)
             {
                 //创建 Shortcut 文件
                 var shortcut = CreateShortcut(item);
