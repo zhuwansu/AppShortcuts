@@ -37,18 +37,24 @@ namespace AppShortcuts
 
         public void Save()
         {
-            this.CheckConflict();
-
-            this.SaveToXml(TempDataFileName);
-
-            var p = Process.Start(nameof(AppShortcutsModel), AppSetting.AuthToken);
-            p.WaitForExit();
-            if (p.ExitCode == 0)
+            try
             {
-                this.SaveToXml();
-            }
+                this.CheckConflict();
 
-            File.Delete(TempDataFileName);
+                this.SaveToXml(TempDataFileName);
+
+                var p = Process.Start(nameof(AppShortcutsModel), AppSetting.AuthToken);
+                p.WaitForExit();
+                if (p.ExitCode == 0)
+                {
+                    this.SaveToXml();
+                }
+
+            }
+            finally
+            {
+                File.Delete(TempDataFileName);
+            }
         }
 
         private void CheckConflict()
