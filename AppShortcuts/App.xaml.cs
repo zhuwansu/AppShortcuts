@@ -15,37 +15,36 @@ namespace AppShortcuts
         {
             base.OnStartup(e);
 
+            if (e.Args.Length == 0)
+            {
+                var mainWin = new MainWindow();
+                mainWin.Show();
+                return;
+            }
+
             try
             {
-                if (e.Args.Length != 0)
+
+                var firstArg = e.Args[0];
+                if (firstArg == "-p"
+                    || firstArg == "-path")
                 {
-                    var firstArg = e.Args[0];
-                    if (firstArg == "-p"
-                        || firstArg == "-path")
+                    if (Clipboard.ContainsText())
                     {
-                        if (Clipboard.ContainsText())
-                        {
-                            var text = Clipboard.GetText();
-                            AppShortcuts.MainWindow.OpenDir(text);
-                        }
-                    }
-                    else
-                    {
-                        var mainWin = new MainWindow();
-                        mainWin.TryOpenItemDir(firstArg);
+                        var text = Clipboard.GetText();
+                        AppShortcuts.MainWindow.OpenDir(text);
                     }
                 }
                 else
                 {
-                    var mainWin = new MainWindow();
-                    mainWin.Show();
-                    return;
+                    new MainWindow().TryOpenItemDir(firstArg);
                 }
             }
             finally
             {
                 this.Shutdown();
             }
+
         }
     }
 }
