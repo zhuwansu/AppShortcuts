@@ -257,19 +257,32 @@ namespace AppShortcuts
         {
             var path = item.ExePath.Replace("\"", string.Empty);
 
+            path = OpenDir(path);
+        }
+
+        public static string OpenDir(string path)
+        {
             if (File.Exists(path))
             {
                 Process.Start("explorer.exe", "/select," + path);
             }
             else
             {
-                //文件不存在时，打开上层目录。
+
+                //如果不是路径，按文件不存在时处理，定位上层目录。
                 while (!Directory.Exists(path))
                 {
-                    path = System.IO.Path.GetDirectoryName(path);
+                    path = Path.GetDirectoryName(path);
                 }
-                Process.Start(path);
+
+                //如果是路径直接打开
+                if (Directory.Exists(path))
+                {
+                    Process.Start(path);
+                }
             }
+
+            return path;
         }
 
         private static void ShowHelp()

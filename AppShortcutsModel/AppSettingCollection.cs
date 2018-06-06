@@ -83,6 +83,7 @@ namespace AppShortcuts
 
         public static void SaveShortcutsToRegistry()
         {
+            System.Console.WriteLine("开始写入注册表...");
             //删除
             //先删除原来的所有文件
             var oldSettings = new AppSettingCollection();
@@ -109,6 +110,8 @@ namespace AppShortcuts
                     Registry.LocalMachine.CreateSubKey(key).SetValue(string.Empty, shortcut);
                 }
             }
+
+            System.Console.WriteLine("写入注册表成功!");
         }
 
         private void SaveToXml(string fileName = DataFileName)
