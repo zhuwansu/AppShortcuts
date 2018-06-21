@@ -42,7 +42,8 @@ namespace AppShortcuts
                     if (Clipboard.ContainsText())
                     {
                         var text = Clipboard.GetText();
-                        if (UrlCheck(text))
+                        text = UrlCheck(text);
+                        if (text != null)
                         {
                             Process.Start(text);
                             return;
@@ -57,7 +58,7 @@ namespace AppShortcuts
             }
 
         }
-        private bool UrlCheck(string strUrl)
+        private string UrlCheck(string strUrl)
         {
             if (!strUrl.Contains("http://") && !strUrl.Contains("https://"))
             {
@@ -67,13 +68,17 @@ namespace AppShortcuts
             {
                 HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(strUrl);
                 myRequest.Method = "HEAD";
-                myRequest.Timeout = 10000;  //超时时间10秒
+                myRequest.Timeout = 5000;  //超时时间10秒
                 HttpWebResponse res = (HttpWebResponse)myRequest.GetResponse();
-                return (res.StatusCode == HttpStatusCode.OK);
+                if (res.StatusCode == HttpStatusCode.OK)
+                {
+                    return strUrl;
+                };
+                return null;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
     }
