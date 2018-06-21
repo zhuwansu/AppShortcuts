@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows;
 
 namespace AppShortcuts
@@ -24,7 +25,6 @@ namespace AppShortcuts
 
             try
             {
-
                 var firstArg = e.Args[0];
                 if (firstArg == "-p"
                     || firstArg == "-path")
@@ -33,18 +33,48 @@ namespace AppShortcuts
                     {
                         var text = Clipboard.GetText();
                         AppShortcuts.MainWindow.OpenDir(text);
+                        return;
                     }
                 }
-                else
+                if (firstArg == "-c"
+                    || firstArg == "-chrome")
                 {
-                    new MainWindow().TryOpenItemDir(firstArg);
+                    if (Clipboard.ContainsText())
+                    {
+                        var text = Clipboard.GetText();
+                        if (UrlCheck(text))
+                        {
+                            Process.Start(text);
+                            return;
+                        }
+                    }
                 }
+                new MainWindow().TryOpenItemDir(firstArg);
             }
             finally
             {
                 this.Shutdown();
             }
 
+        }
+        private bool UrlCheck(string strUrl)
+        {
+            if (!strUrl.Contains("http://") && !strUrl.Contains("https://"))
+            {
+                strUrl = "http://" + strUrl;
+            }
+            try
+            {
+                HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(strUrl);
+                myRequest.Method = "HEAD";
+                myRequest.Timeout = 10000;  //超时时间10秒
+                HttpWebResponse res = (HttpWebResponse)myRequest.GetResponse();
+                return (res.StatusCode == HttpStatusCode.OK);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
